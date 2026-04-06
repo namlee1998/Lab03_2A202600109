@@ -1,8 +1,8 @@
 # Individual Report: Lab 3 - Chatbot vs ReAct Agent
 
-- **Student Name**: [Your Name Here]
-- **Student ID**: [Your ID Here]
-- **Date**: [Date Here]
+- **Student Name**: LÊ TÚ NAM
+- **Student ID**: 2A202600109
+- **Date**: 6/4/2026
 
 ---
 
@@ -10,20 +10,39 @@
 
 *Describe your specific contribution to the codebase (e.g., implemented a specific tool, fixed the parser, etc.).*
 
-- **Modules Implementated**: [e.g., `src/tools/search_tool.py`]
-- **Code Highlights**: [Copy snippets or link file lines]
-- **Documentation**: [Brief explanation of how your code interacts with the ReAct loop]
+- **Modules Implementated**: chatbot and fix bug
+- **Code Highlights**: 
+*Chatbot code:
+def chat(user_input):
+    conversation_history.append({"role": "user", "content": user_input})
 
----
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=conversation_history,
+    )
+
+    reply = response.choices[0].message.content
+    conversation_history.append({"role": "assistant", "content": reply})
+    return reply
+*Fix bug: 
+from datetime import datetime
+current_date = datetime.now().strftime("%A, %d/%m/%Y")
+-Fix in System prompt:
+Current date: {current_date} 
+
+- **Documentation**:Code của em thể hiện rõ rằng LLM giỏi về kể chuyện hơn là xử lý các bước. 
+Ngoài ra việc fix bug về vấn đề trả về sai về mặt thời gian khiến cho agent trả về chính xác về mặt thời gian.
 
 ## II. Debugging Case Study (10 Points)
 
 *Analyze a specific failure event you encountered during the lab using the logging system.*
 
-- **Problem Description**: [e.g., Agent caught in an infinite loop with `Action: search(None)`]
-- **Log Source**: [Link or snippet from `logs/YYYY-MM-DD.log`]
-- **Diagnosis**: [Why did the LLM do this? Was it the prompt, the model, or the tool spec?]
-- **Solution**: [How did you fix it? (e.g., updated `Thought` examples in the system prompt)]
+- **Problem Description**: Agent trả về thông tin sai về mặt thời gian
+- **Log Source**: 
+web_search["giá vé xe từ Sài Gòn đi Đà Lạt 2023"]  → No results found.
+web_search["giá vé xe khách từ Sài Gòn đi Đà Lạt 2023"] → No results found.
+- **Diagnosis**: Vấn đề là do tách tool gọi thời gian ra riêng nên LLM đưa ra câu trả lời dựa trên thông tin từ lần cuối cùng cập nhật
+- **Solution**: Update = cách thêm phần "current date".
 
 ---
 
@@ -31,9 +50,9 @@
 
 *Reflect on the reasoning capability difference.*
 
-1.  **Reasoning**: How did the `Thought` block help the agent compared to a direct Chatbot answer?
-2.  **Reliability**: In which cases did the Agent actually perform *worse* than the Chatbot?
-3.  **Observation**: How did the environment feedback (observations) influence the next steps?
+1.  **Reasoning**: Block Thought giúp cho người dùng dễ dàng debug và biết được agent trả về cái gì.
+2.  **Reliability**: Khi gặp những bài toàn đơn giản, agent phải khải qua nhiều vòng lặp nên gây tốn tài nguyên
+3.  **Observation**: Nó cập nhật lại suy luận và đưa ra quyết định có gọi vòng lặp tiếp theo không hay đã đủ thông tin để đưa ra quyết định cuối cùng
 
 ---
 
@@ -41,9 +60,9 @@
 
 *How would you scale this for a production-level AI agent system?*
 
-- **Scalability**: [e.g., Use an asynchronous queue for tool calls]
-- **Safety**: [e.g., Implement a 'Supervisor' LLM to audit the agent's actions]
-- **Performance**: [e.g., Vector DB for tool retrieval in a many-tool system]
+- **Scalability**: Áp dụng rate limiting + load balancing để đảm bảo hệ thống ổn định khi traffic tăng
+- **Safety**: Thêm rule-based guardrails
+- **Performance**: Cache kết quả tool call để giảm số lần gọi API lặp lại
 
 ---
 
